@@ -1,5 +1,5 @@
 import Resume from './schema';
-import { DEFAULT_RESUME } from '../../utils/resume';
+import { DEFAULT_RESUME } from '../../utils/datas';
 
 const initialResume = async (userId, options) => {
   const newResume = Object.assign({}, DEFAULT_RESUME);
@@ -17,17 +17,10 @@ const addResume = async (userId, resume = DEFAULT_RESUME) => {
     userId,
     resume
   });
-  if (addResult) {
-    return Promise.resolve({
-      success: true,
-      message: '新增简历成功',
-      result: addResult
-    });
-  }
   return Promise.resolve({
-    success: false,
+    success: addResult ? true : false,
     message: '新增简历成功',
-    result: null
+    result: addResult || null
   });
 };
 
@@ -36,19 +29,21 @@ const updateResume = async (userId, resume) => {
   return await addResume(userId, resume);
 };
 
+const getUpdateTime = async (userId) => {
+  const getResult = await findResume({ userId });
+  return Promise.resolve({
+    success: getResult ? true : false,
+    message: '',
+    result: getResult ? getResult.updated_at : ''
+  });
+};
+
 const getResume = async (userId) => {
   const getResult = await findResume({ userId });
-  if (!getResult) {
-    return Promise.resolve({
-      success: false,
-      message: '没有查询到结果',
-      result: null
-    });
-  }
   return Promise.resolve({
-    success: true,
-    message: '',
-    result: getResult.resume
+    success: getResult ? true : false,
+    message: getResult ? '' : '没有查询到结果',
+    result: getResult ? getResult.resume : null
   });
 };
 
@@ -60,6 +55,7 @@ export default {
   initialResume,
   addResume,
   getResume,
+  getUpdateTime,
   updateResume,
   removeAll
 }

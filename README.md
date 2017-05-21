@@ -1,14 +1,23 @@
 # [Hacknical](http://hacknical.com?locale=en)
 
-> A website for github user to make a better resume,  and see his github contributions/commits/languages/repos datas analysis.
->
-> [Click to see this website](http://hacknical.com?locale=en)
+**hacknical, hacker & technical**
+
+![hacknical-logo-with-text](./screenshots/logos/hacknical-logo-large.png)
+
+> A website for GitHub user to generate his GitHub data analysis (contributions/commits/languages/repos datas), helps to make a better resume.
 
 [中文版 README](./README-ZH.md)
 
-**Attention：this repos only support Chinese version now, but will publish English version later.**
+**Attention：Most of the pages support English now😁😁😁, including github data analysis page.**
 
-**Attention2：Most of the pages support English now😁😁😁, including github data analysis page. (Expect Resume Editor & Part of Mobile Pages) **
+Extract dependency：
+
+- UI Components --> [light-ui](https://github.com/ecmadao/light-ui)
+- GitHub API crawler --> [hacknical-api](https://github.com/ecmadao/hacknical-api)
+
+## Examples
+
+- [My GitHub data analysis](http://hacknical.com/github/ecmadao?locale=en)
 
 ## Screenshots
 
@@ -22,15 +31,16 @@
 
 ## About
 
-See [Project description](./doc/ABOUT-en.md) here. [中文版说明](./doc/ABOUT-zh-CN.md)
+[中文版说明](./doc/ABOUT-zh.md)
 
 ## Todos
 
 - [x] support English
-- [ ] support orgs
+- [x] support orgs
 - [ ] support forked repos
 - [ ] support edit resume in mobile
-- [ ] support show resume in mobile
+- [x] support show resume in mobile
+- [x] support export resume to PDF
 
 ## Techs
 
@@ -42,8 +52,6 @@ See [Project description](./doc/ABOUT-en.md) here. [中文版说明](./doc/ABOUT
   - nunjucks
   - request
   - pm2
-  - nginx
-  - nodemon
 
 - frontend
 
@@ -57,12 +65,6 @@ See [Project description](./doc/ABOUT-en.md) here. [中文版说明](./doc/ABOUT
   - headroom.js
   - webpack
 
-- both
-
-  - moment
-  - es6
-  - babel
-  - fetch
 
 ## License
 

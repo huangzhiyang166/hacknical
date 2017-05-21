@@ -2,15 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import { bindActionCreators } from 'redux';
+import { InputGroup, Textarea } from 'light-ui';
 
-import Textarea from 'COMPONENTS/Textarea';
-import Button from 'COMPONENTS/Button';
-import Input from 'COMPONENTS/Input';
 import Labels from 'COMPONENTS/Labels';
-import InputsGroup from 'COMPONENTS/InputsGroup';
-
 import styles from '../../styles/resume.css';
 import actions from '../../redux/actions';
+import locales from 'LOCALES';
+import { TipsoInput, SectionWrapper } from './components';
+
+const resumeTexts = locales("resume").sections.projects;
 
 class PersonalProjects extends React.Component {
   constructor(props) {
@@ -37,32 +37,29 @@ class PersonalProjects extends React.Component {
             <div className={styles["resume_delete"]} onClick={this.deleteProject(index)}>
               <i className="fa fa-trash-o" aria-hidden="true"></i>
             </div>
-            <InputsGroup
+            <InputGroup
               value={title}
-              style="flat"
-              placeholder="填写项目名称"
-              customStyle={styles["single_input"]}
+              theme="flat"
+              placeholder={resumeTexts.projectName}
+              tipsoStyle={{
+                left: '0',
+                transform: 'translateX(0)'
+              }}
+              wrapperClassName={cx(styles["input_group"], styles["single_input"])}
               onChange={this.handleProjectChange(index)('title')}>
-              <div className={styles["project_link_wrapper"]}>
-                <i className="fa fa-link" aria-hidden="true"></i>
-                &nbsp;&nbsp;
-                <Input
-                  value={url}
-                  type="url"
-                  check={false}
-                  style="borderless"
-                  className="underline"
-                  placeholder="填写项目链接"
-                  onChange={this.handleProjectChange(index)('url')}
-                />
-              </div>
-            </InputsGroup>
+              <TipsoInput
+                value={url}
+                placeholder={resumeTexts.homepage}
+                className={styles['tipso_input_long']}
+                onChange={this.handleProjectChange(index)('url')}
+              />
+            </InputGroup>
           </div>
           <div className={styles["resume_wrapper"]}>
             <Textarea
               max="200"
               value={desc}
-              placeholder="填写项目描述"
+              placeholder={resumeTexts.projectDesc}
               type="textarea"
               onChange={this.handleProjectChange(index)('desc')}
             />
@@ -73,7 +70,7 @@ class PersonalProjects extends React.Component {
               onAdd={this.addTech(index)}
               onDelete={this.deleteTech(index)}
               max={5}
-              placeholder="+ 添加使用的技术"
+              placeholder={`+ ${resumeTexts.technologies}`}
             />
           </div>
         </div>
@@ -103,24 +100,12 @@ class PersonalProjects extends React.Component {
   render() {
     const { actions } = this.props;
     return (
-      <div className={styles["resume_section_container"]}>
-        <div className={styles["section_title"]}>
-          个人项目
-        </div>
-        <div>
-          {this.renderProjects()}
-        </div>
-        <div className={styles["resume_button_container"]}>
-          <Button
-            style="flat"
-            value="添加个人项目"
-            leftIcon={(
-              <i className="fa fa-plus-circle" aria-hidden="true"></i>
-            )}
-            onClick={actions.addPersonalProject}
-          />
-        </div>
-      </div>
+      <SectionWrapper
+        title={resumeTexts.title}
+        button={resumeTexts.mainButton}
+        onClick={actions.addPersonalProject}>
+        {this.renderProjects()}
+      </SectionWrapper>
     )
   }
 }

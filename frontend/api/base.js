@@ -3,11 +3,11 @@ import param from 'jquery-param';
 import 'isomorphic-fetch';
 import NProgress from 'nprogress';
 require('nprogress/nprogress.css');
-import Message from 'COMPONENTS/Message';
+import { Message } from 'light-ui/lib/raw';
 
 polyfill();
 const rnoContent = /^(?:GET|HEAD)$/;
-const message = Message();
+const message = new Message();
 
 const fetchApi = (url, method, data) => {
   NProgress.start();
@@ -55,16 +55,22 @@ const fetchApi = (url, method, data) => {
     });
 };
 
-export const postData = (url, data) => {
-  data['_csrf'] = document.getElementsByTagName('meta')['csrf-token'].content;
-  return fetchApi(url, 'POST', data);
+const getCsrf = (resolve) => {
+  const csrf = document.getElementsByTagName('meta')['csrf-token'].content;
+  return resolve && resolve(csrf);
 };
 
-export const getData = (url, data) => {
-  return fetchApi(url, 'GET', data);
+const verifyToFetch = (url, method, data) => (csrf) => {
+  data['_csrf'] = csrf;
+  return fetchApi(url, method, data);
 };
 
-export const deleteData = (url, data) => {
-  data['_csrf'] = document.getElementsByTagName('meta')['csrf-token'].content;
-  return fetchApi(url, 'DELETE', data);
-};
+export const postData = (url, data = {}) => getCsrf(verifyToFetch(url, 'POST', data));
+
+export const getData = (url, data = {}) => fetchApi(url, 'GET', data);
+
+export const deleteData = (url, data = {}) => getCsrf(verifyToFetch(url, 'DELETE', data));
+
+export const putData = (url, data = {}) => getCsrf(verifyToFetch(url, 'PUT', data));
+
+export const patchData = (url, data = {}) => getCsrf(verifyToFetch(url, 'PATCH', data));

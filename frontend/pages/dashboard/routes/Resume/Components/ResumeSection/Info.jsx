@@ -2,12 +2,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
+import { Input, SelectorV2 } from 'light-ui';
 
-import Input from 'COMPONENTS/Input';
-import SelectorV2 from 'COMPONENTS/SelectorV2';
 import actions from '../../redux/actions';
-import { GENDERS } from 'SHAREDPAGE/datas/resume';
+import { GENDERS } from 'SHARED/datas/resume';
 import styles from '../../styles/resume.css';
+import locales from 'LOCALES';
+
+const resumeTexts = locales("resume").sections.info;
 
 class Info extends React.Component {
   constructor(props) {
@@ -37,13 +39,13 @@ class Info extends React.Component {
     return (
       <div className={styles["resume_piece_container"]}>
         <div className={styles["resume_title"]}>
-          基本信息
+          {resumeTexts.title}
         </div>
         <div className={styles["resume_wrapper"]}>
           <Input
             value={name}
-            placeholder="姓名"
-            style="flat"
+            placeholder={resumeTexts.name}
+            theme="flat"
             onChange={this.handleInfoChange('name')}
           />
           <SelectorV2
@@ -57,15 +59,15 @@ class Info extends React.Component {
           <Input
             type="email"
             value={email}
-            placeholder="邮箱"
-            style="flat"
+            placeholder={resumeTexts.email}
+            theme="flat"
             onChange={this.handleInfoChange('email')}
           />
           <Input
             type="phone"
             value={phone}
-            placeholder="电话"
-            style="flat"
+            placeholder={resumeTexts.phone}
+            theme="flat"
             formatType="phone"
             onChange={this.handleInfoChange('phone')}
           />
@@ -73,14 +75,14 @@ class Info extends React.Component {
         <div className={styles["resume_wrapper"]}>
           <Input
             value={intention}
-            placeholder="意向职位"
-            style="flat"
+            placeholder={resumeTexts.job}
+            theme="flat"
             onChange={this.handleInfoChange('intention')}
           />
           <Input
             value={location}
-            placeholder="坐标"
-            style="flat"
+            placeholder={resumeTexts.position}
+            theme="flat"
             onChange={this.handleInfoChange('location')}
           />
         </div>

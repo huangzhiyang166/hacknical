@@ -2,7 +2,8 @@
 
 .resume_container {
   position: relative;
-  margin-left: 90px;
+  composes: dashboard_content from 'STYLES/common.css';
+  max-width: 650px;
 }
 
 .resume_navigation {
@@ -117,6 +118,11 @@
 .single_input {
   margin-left: 0 !important;
   margin-right: 0 !important;
+}
+
+.input_group {
+  display: flex;
+  width: 100%;
 }
 
 .last_input {
@@ -358,4 +364,19 @@
   margin-left: 0 !important;
   margin-right: 5px !important;
   display: inline-flex;
+}
+
+.icon_button_tipso {
+  min-width: 150px;
+  font-size: 12px;
+  line-height: 1.5em;
+  color: var(--oc-gray-7);
+}
+
+.tipso_input {
+  font-size: 12px;
+}
+
+.tipso_input_long {
+  width: 260px;
 }

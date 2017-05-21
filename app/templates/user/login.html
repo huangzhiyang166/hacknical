@@ -7,9 +7,13 @@
 {% block body %}
 <div id="login" class="login-main">
   <div class="topbar">
-    <a href="/user/login?locale={{ languageId }}">
-      {{ languageText }}
-    </a>
+    <div class="topbar-selector">
+      {% for item in locales %}
+        <a href="/user/login?locale={{ item.id }}">
+          {{ item.text }}
+        </a>
+      {% endfor %}
+    </div>
     <a href="https://github.com/login/oauth/authorize?scope=user:email&client_id={{ clientId }}">
       {{ login }}
     </a>
@@ -20,7 +24,7 @@
   <div class="login-pannel">
     <div class="title">hacknical</div>
     <a href="https://github.com/login/oauth/authorize?scope=user:email&client_id={{ clientId }}" class="github_login_link">
-      <i class="fa fa-github" aria-hidden="true"></i>&nbsp;login with github
+      <i class="fa fa-github" aria-hidden="true"></i>&nbsp;{{ loginButtonText }}
     </a>
     <span>
       {{ loginText }}

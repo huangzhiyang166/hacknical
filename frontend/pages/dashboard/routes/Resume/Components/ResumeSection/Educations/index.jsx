@@ -4,9 +4,11 @@ import { bindActionCreators } from 'redux';
 
 import actions from '../../../redux/actions';
 import Education from './Education';
-import Button from 'COMPONENTS/Button';
-
 import styles from '../../../styles/resume.css';
+import locales from 'LOCALES';
+import { SectionWrapper } from '../components';
+
+const resumeTexts = locales("resume").sections.edu;
 
 class Educations extends React.Component {
   constructor(props) {
@@ -47,24 +49,12 @@ class Educations extends React.Component {
   render() {
     const { actions } = this.props;
     return (
-      <div className={styles["resume_section_container"]}>
-        <div className={styles["section_title"]}>
-          教育经历
-        </div>
-        <div>
-          {this.renderEdu()}
-        </div>
-        <div className={styles["resume_button_container"]}>
-          <Button
-            style="flat"
-            value="添加教育经历"
-            leftIcon={(
-              <i className="fa fa-plus-circle" aria-hidden="true"></i>
-            )}
-            onClick={actions.addEducation}
-          />
-        </div>
-      </div>
+      <SectionWrapper
+        title={resumeTexts.title}
+        button={resumeTexts.mainButton}
+        onClick={actions.addEducation}>
+        {this.renderEdu()}
+      </SectionWrapper>
     )
   }
 }

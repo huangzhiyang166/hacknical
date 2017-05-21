@@ -2,42 +2,63 @@ import koaRouter from 'koa-router';
 import User from '../controllers/user';
 import platform from '../controllers/helper/platform';
 import user from '../controllers/helper/user';
-import session from '../controllers/helper/session';
+import check from '../controllers/helper/check';
+import cache from '../controllers/helper/cache';
 
 const router = koaRouter({
   prefix: '/user'
 });
 
-// dashboard page
-router.get('/dashboard',
-  platform.checkPlatform,
-  user.checkIfLogin(),
-  User.dashboard
-);
 // mobile dashboard page
-router.get('/analysis',
-  platform.checkPlatform,
+router.get('/analysis/mobile',
   user.checkIfLogin(),
+  platform.checkPlatform,
+  platform.checkMobile('/dashboard'),
   User.mobileAnalysis
 );
-router.get('/setting',
-  platform.checkPlatform,
+router.get('/setting/mobile',
   user.checkIfLogin(),
+  platform.checkPlatform,
+  platform.checkMobile('/dashboard'),
   User.mobileSetting
+);
+
+// initial finished
+router.patch('/initialed',
+  user.checkIfLogin(),
+  User.initialFinished
 );
 
 // user login/logout/signup page
 router.get('/login',
-  platform.checkPlatform,
   user.checkIfNotLogin(),
+  platform.checkPlatform,
   User.loginPage
 );
 
 // API
-router.get('/login/github', User.githubLogin);
-router.post('/login', User.login);
-router.post('/signup', User.signup);
 router.get('/logout', User.logout);
 
+// github sections
+router.get('/github_sections', User.getGithubShareSections);
+router.post('/github_sections',
+  user.checkIfLogin(),
+  User.setGithubShareSections
+);
+
+router.get(
+  '/repos/pinned',
+  user.checkIfLogin(),
+  User.getPinnedRepos
+);
+router.post(
+  '/repos/pinned',
+  user.checkIfLogin(),
+  check.body('pinnedRepos'),
+  User.setPinnedRepos,
+  cache.del()
+);
+
+router.get('/login/github', User.githubLogin);
 
 module.exports = router;

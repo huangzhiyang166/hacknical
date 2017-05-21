@@ -2,15 +2,15 @@ import React, { PropTypes } from 'react';
 import cx from 'classnames';
 
 import dateHelper from 'UTILS/date';
-import { sortByX } from 'UTILS/helper';
+import { sortBySeconds } from 'UTILS/helper';
 import validator from 'UTILS/validator';
-import { LINK_NAMES } from 'SHAREDPAGE/datas/resume';
-import { objectassign } from 'SHAREDPAGE/utils/resume';
-import GithubComponent from 'SHAREDPAGE/components/GithubComponent';
+import { LINK_NAMES } from 'SHARED/datas/resume';
+import { objectassign } from 'SHARED/utils/resume';
+import GithubComponent from 'SHARED/components/GithubComponent';
 import styles from './styles/resume.css';
 
-const sortByDate = sortByX('startTime');
-const sortByEndDate = sortByX('endTime');
+const sortByDate = sortBySeconds('startTime');
+const sortByEndDate = sortBySeconds('endTime');
 const validateDate = dateHelper.validator.date;
 const getSecondsByDate = dateHelper.seconds.getByDate;
 const getDateNow = dateHelper.date.now;
@@ -19,8 +19,7 @@ const DATE_NOW = getDateNow();
 const DATE_NOW_SECONDS = getSecondsByDate(DATE_NOW);
 
 const info = (options) => {
-  const { text, icon, type } = options;
-  const style = options.style || '';
+  const { text, icon, type, style = '' } = options;
   const component = options.component || null;
 
   return (
@@ -29,8 +28,27 @@ const info = (options) => {
       &nbsp;&nbsp;
       {component ? component : text}
     </div>
-  )
+  );
 };
+
+const linkInfo = (options) => {
+  const { url, title, style = '' } = options;
+  const hasUrl = validator.url(url);
+  const headerClass = cx(
+    styles["info_header"],
+    hasUrl && styles.link,
+    style
+  );
+
+  return hasUrl ? (
+    <a target="_blank" href={validateUrl(url)} className={headerClass}>
+      <i className="fa fa-link" aria-hidden="true"></i>&nbsp;&nbsp;
+      {title}
+    </a>
+  ) : (<div className={headerClass}>{title}</div>);
+};
+
+const validateUrl = url => /^http/.test(url) ? url : `//${url}`;
 
 const baseInfo = (text, icon, options = {}) => {
   return info(objectassign({}, {
@@ -65,20 +83,26 @@ class ResumeComponent extends React.Component {
 
   renderEducations() {
     const { educations } = this.props.resume;
-    if (!educations.length) { return }
 
-    const edus = educations.sort(sortByDate).reverse().map((edu, index) => {
-      const { school, major, education, startTime, endTime} = edu;
-      if (!school) { return }
-      return (
-        <div key={index} className={styles["section_wrapper"]}>
-          <div className={styles["info_header"]}>{school}{education ? `, ${education}` : ''}</div>
-          <div className={styles["info_text"]}>{validateDate(startTime)}  ~  {validateDate(endTime)}</div>
-          <div className={styles["info_text"]}>{major}</div>
-          {/* <div className={styles["section_dot"]}></div> */}
-        </div>
-      )
-    });
+    const edus = educations
+      .filter(edu => edu.school)
+      .sort(sortByDate)
+      .reverse()
+      .map((edu, index) => {
+        const { school, major, education, startTime, endTime} = edu;
+        return (
+          <div key={index} className={styles["section_wrapper"]}>
+            <div className={cx(styles["info_header"], styles['info_header_large'])}>
+              {school}{education ? `, ${education}` : ''}
+            </div>
+            <div className={styles["info_text"]}>{validateDate(startTime)}  ~  {validateDate(endTime)}</div>
+            <div className={styles["info_text"]}>{major}</div>
+            {/* <div className={styles["section_dot"]}></div> */}
+          </div>
+        );
+      });
+
+    if (!edus.length) { return; }
 
     return (
       <div className={styles["section"]}>
@@ -87,32 +111,31 @@ class ResumeComponent extends React.Component {
           {edus}
         </div>
       </div>
-    )
+    );
   }
 
   renderWorkExperiences() {
     const { workExperiences } = this.props.resume;
-    if (!workExperiences.length) { return }
 
-    const exps = workExperiences.sort(sortByDate).reverse().map((experience, index) => {
-      const { company, url, startTime, endTime, position, projects } = experience;
-      if (!company) { return }
-      const workProjects = this.renderProjects(projects);
-      return (
-        <div key={index} className={styles["section_wrapper"]}>
-          {validator.url(url) ? (
-            <a target="_blank" href={url[0] === 'h' ? url : `//${url}`} className={cx(styles["info_header"], styles.link)}>
-              <i className="fa fa-link" aria-hidden="true"></i>&nbsp;&nbsp;
-              {company}
-            </a>
-          ) : (<div className={styles["info_header"]}>{company}</div>)}
-          {position ? `, ${position}` : ''}
-          <div className={styles["info_text"]}>{validateDate(startTime)}  ~  {validateDate(endTime)}</div>
-          <div>{workProjects}</div>
-          <div className={styles["section_dot"]}></div>
-        </div>
-      )
-    });
+    const exps = workExperiences
+      .filter(experience => experience.company)
+      .sort(sortByDate)
+      .reverse()
+      .map((experience, index) => {
+        const { company, url, startTime, endTime, position, projects } = experience;
+        const workProjects = this.renderProjects(projects);
+        return (
+          <div key={index} className={styles["section_wrapper"]}>
+            {linkInfo({url, title: company, style: styles['info_header_large']})}
+            {position ? `, ${position}` : ''}
+            <div className={styles["info_text"]}>{validateDate(startTime)}  ~  {validateDate(endTime)}</div>
+            <div>{workProjects}</div>
+            <div className={styles["section_dot"]}></div>
+          </div>
+        );
+      });
+
+    if (!exps.length) { return; }
 
     return (
       <div className={styles["section"]}>
@@ -121,13 +144,13 @@ class ResumeComponent extends React.Component {
           {exps}
         </div>
       </div>
-    )
+    );
   }
 
   renderProjects(projects) {
     return projects.map((project, index) => {
-      const { name, details } = project;
-      if (!name) { return }
+      const { name, url, details } = project;
+      if (!name) { return; }
       const projectDetails = details.map((detail, i) => {
         return (
           <li key={i}>
@@ -137,45 +160,43 @@ class ResumeComponent extends React.Component {
       });
       return (
         <div key={index} className={styles["project_section"]}>
-          <div className={styles["info_section"]}>{name}</div>
+          {linkInfo({url, title: name, style: styles['info_header_mid']})}
           <ul className={styles["info_intro"]}>
             {projectDetails}
           </ul>
         </div>
-      )
+      );
     });
   }
 
   renderPersonalProjects() {
     const { personalProjects } = this.props.resume;
-    if (!personalProjects.length) { return }
 
-    const projects = personalProjects.map((project, index) => {
-      const { url, desc, techs, title } = project;
-      const projectTechs = techs.map((tech, index) => {
+    const projects = personalProjects
+      .filter(project => project.title)
+      .map((project, index) => {
+        const { url, desc, techs, title } = project;
+        const projectTechs = techs.map((tech, index) => {
+          return (
+            <div key={index} className={styles["info_label"]}>
+              {tech}
+            </div>
+          );
+        });
         return (
-          <div key={index} className={styles["info_label"]}>
-            {tech}
+          <div key={index} className={styles["sec_section"]}>
+            {linkInfo({url, title, style: styles['info_header_large']})}
+            <div className={styles["info_text"]}>
+              {desc}
+            </div>
+            <div className={styles["info_labels"]}>
+              {projectTechs}
+            </div>
           </div>
         );
       });
-      return (
-        <div key={index} className={styles["sec_section"]}>
-          {validator.url(url) ? (
-            <a target="_blank" href={url[0] === 'h' ? url : `//${url}`} className={cx(styles["info_header"], styles.link)}>
-              <i className="fa fa-link" aria-hidden="true"></i>&nbsp;&nbsp;
-              {title}
-            </a>
-          ) : (<div className={styles["info_header"]}>{title}</div>)}
-          <div className={styles["info_text"]}>
-            {desc}
-          </div>
-          <div className={styles["info_labels"]}>
-            {projectTechs}
-          </div>
-        </div>
-      )
-    });
+
+    if (!projects.length) { return; }
 
     return (
       <div className={styles["section"]}>
@@ -184,20 +205,20 @@ class ResumeComponent extends React.Component {
           {projects}
         </div>
       </div>
-    )
+    );
   }
 
   renderSupplements() {
     const { others } = this.props.resume;
     const { supplements } = others;
-    if (!supplements.length) { return }
+    if (!supplements.length) { return; }
 
     const personalSupplements = supplements.map((supplement, index) => {
       return (
         <li key={index}>
           {supplement}
         </li>
-      )
+      );
     });
 
     return (
@@ -209,13 +230,12 @@ class ResumeComponent extends React.Component {
           </ul>
         </div>
       </div>
-    )
+    );
   }
 
   renderSocialLinks() {
     const { others } = this.props.resume;
     const { socialLinks } = others;
-    if (!socialLinks.some(social => validator.url(social.url))) { return }
 
     const socials = socialLinks.map((social, index) => {
       if (validator.url(social.url)) {
@@ -228,10 +248,10 @@ class ResumeComponent extends React.Component {
               <a
                 target="_blank"
                 className={styles["list_link"]}
-                href={url[0] === 'h' ? url : `//${url}`}>{url}</a>
+                href={validateUrl(url)}>{url}</a>
             </div>
           </li>
-        )
+        );
       }
     });
 
@@ -244,7 +264,7 @@ class ResumeComponent extends React.Component {
           </ul>
         </div>
       </div>
-    )
+    );
   }
 
   renderLabels() {
@@ -256,7 +276,7 @@ class ResumeComponent extends React.Component {
       if (getSecondsByDate(eduEndTime) >= DATE_NOW_SECONDS) {
         labels.push(
           <div className={styles["info_label"]} key={0}>在校</div>
-        )
+        );
       }
     }
 
@@ -266,7 +286,7 @@ class ResumeComponent extends React.Component {
       if (getSecondsByDate(workEndTime) >= DATE_NOW_SECONDS) {
         labels.push(
           <div className={styles["info_label"]} key={1}>在职</div>
-        )
+        );
       }
     }
 
@@ -275,15 +295,15 @@ class ResumeComponent extends React.Component {
         <div className={styles["info_labels_container"]}>
           {labels}
         </div>
-      )
+      );
     }
   }
 
   render() {
     const { showGithub } = this.state;
-    const { resume, shareInfo } = this.props;
+    const { resume, shareInfo, login } = this.props;
     const { info, others } = resume;
-    const { useGithub, github } = shareInfo;
+    const { useGithub, github, githubUrl } = shareInfo;
 
     if (useGithub && showGithub) {
       return (
@@ -306,10 +326,11 @@ class ResumeComponent extends React.Component {
               isShare={true}
               githubSection={github}
               containerStyle={styles["github_container"]}
+              login={login}
             />
           </div>
         </div>
-      )
+      );
     }
 
     return (
@@ -327,12 +348,14 @@ class ResumeComponent extends React.Component {
           <div className={styles["right"]}>
             {baseInfo(info.name, info.gender, { style: styles["user_title"] })}
             {this.renderLabels()}<br/>
-            {baseInfo(info.phone, 'mobile', { style: styles["right_info"] })}
-            {baseInfo(null, 'envelope-o', {
-              component: (
-                <a href={`mailto:${info.email}`} className={styles["right_link"]}>{info.email}</a>
-              )
-            })}
+            {info.phone ? (baseInfo(info.phone, 'mobile', { style: styles["right_info"] })) : ''}
+            {info.email ? (
+              baseInfo(null, 'envelope-o', {
+                component: (
+                  <a href={`mailto:${info.email}`} className={styles["right_link"]}>{info.email}</a>
+                )
+              })
+            ) : ''}
             {baseInfo(`${info.location}   ${info.intention}`, 'map-marker', { style: styles["right_info"] })}
             {others.dream ? (
               <div className={styles["user_dream"]}>
@@ -341,7 +364,13 @@ class ResumeComponent extends React.Component {
             ) : ''}
             {useGithub ? (
               baseInfo(null, 'github', {
-                component: (
+                component: githubUrl ? (
+                  <a
+                    href={githubUrl}
+                    className={styles["right_link_info"]}>
+                    查看我的 github 总结报告
+                  </a>
+                ) : (
                   <a
                     onClick={() => this.changeShowGithub(true)}
                     className={styles["right_link_info"]}>
@@ -353,18 +382,20 @@ class ResumeComponent extends React.Component {
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 
 ResumeComponent.propTypes = {
   resume: PropTypes.object,
   shareInfo: PropTypes.object,
+  login: PropTypes.string
 };
 
 ResumeComponent.defaultProps = {
   resume: {},
   shareInfo: {},
+  login: ''
 };
 
 export default ResumeComponent;

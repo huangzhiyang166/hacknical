@@ -1,5 +1,9 @@
 @import 'open-color/open-color.css';
 
+.container {
+  composes: dashboard_content from 'STYLES/common.css';
+}
+
 .card_container {
   composes: card_container from 'STYLES/common.css';
 }
@@ -21,14 +25,17 @@
   }
 }
 
+.base_container {
+  &:not(:first-child) {
+    border-top: 1px solid var(--oc-gray-2);
+  }
+}
+
 .info_container {
   display: flex;
   flex-direction: row;
   padding: 0 15px;
-
-  &:not(:first-child) {
-    border-top: 1px solid var(--oc-gray-2);
-  }
+  composes: base_container;
 }
 
 .info_container_large {

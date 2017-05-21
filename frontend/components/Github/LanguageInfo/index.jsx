@@ -1,22 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
+import {
+  Loading,
+  InfoCard,
+  CardGroup,
+  Label
+} from 'light-ui';
 
-import ChartInfo from 'COMPONENTS/ChartInfo';
-import Loading from 'COMPONENTS/Loading';
-import Label from 'COMPONENTS/Label';
 import github from 'UTILS/github';
 import { GREEN_COLORS, randomColor } from 'UTILS/colors';
 import {
+  sortByX,
   getMaxIndex,
   sortLanguages
 } from 'UTILS/helper';
 import locales from 'LOCALES';
+import chart from 'UTILS/chart';
 
 import githubStyles from '../styles/github.css';
 import chartStyles from '../styles/chart.css';
 import cardStyles from '../styles/info_card.css';
 
+const sortByLanguageStar = sortByX('star');
 const githubTexts = locales('github').sections.languages;
 
 class LanguageInfo extends React.Component {
@@ -25,6 +31,7 @@ class LanguageInfo extends React.Component {
     this.state = {
       showLanguage: null
     };
+    this.languages = [];
     this.labelColor = randomColor();
     this.languageSkillChart = null;
     this.languageUsedChart = null;
@@ -35,7 +42,13 @@ class LanguageInfo extends React.Component {
     this.renderCharts();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(preProps) {
+    const { languageUsed } = this.props;
+    // if (!Object.keys(preProps.languageUsed).length && Object.keys(languageUsed).length) {
+    //   this.setState({
+    //     showLanguage: this.sortedLanguages[0]
+    //   });
+    // }
     this.renderCharts();
   }
 
@@ -59,23 +72,12 @@ class LanguageInfo extends React.Component {
       type: 'radar',
       data: {
         labels: languages,
-        datasets: [{
-          data: languagePercentage,
-          label: '',
-          fill: true,
-          backgroundColor: GREEN_COLORS[4],
-          borderWidth: 1,
-          borderColor: GREEN_COLORS[0],
-          pointBackgroundColor: GREEN_COLORS[0],
-          pointBorderColor: "#fff",
-          pointHoverBackgroundColor: "#fff",
-          pointHoverBorderColor: GREEN_COLORS[0]
-        }]
+        datasets: [chart.radar(languagePercentage)]
       },
       options: {
         title: {
           display: true,
-          text: githubTexts.usageChartTitle
+          text: githubTexts.usageChart.title
         },
         legend: {
           display: false,
@@ -83,7 +85,7 @@ class LanguageInfo extends React.Component {
         tooltips: {
           callbacks: {
             label: (item, data) => {
-              return `占比：${(item.yLabel * 100).toFixed(2)}%`
+              return `${githubTexts.usageChart.label}${(item.yLabel * 100).toFixed(2)}%`
             }
           }
         }
@@ -93,65 +95,38 @@ class LanguageInfo extends React.Component {
 
   renderLanguageSkillsChart() {
     const { languageSkills } = this.props;
-    const languages = Object.keys(languageSkills).filter(language => languageSkills[language] && language !== 'null').slice(0, 6);
-    const skill = languages.map(language => languageSkills[language]);
+    const languages = [], skills = [];
+    const languageArray = Object.keys(languageSkills).filter(language => languageSkills[language] && language !== 'null').slice(0, 6).map(language => ({ star: languageSkills[language], language })).sort(sortByLanguageStar);
+    languageArray.forEach((obj) => {
+      languages.push(obj.language);
+      skills.push(obj.star);
+    });
+
     const languageSkill = ReactDOM.findDOMNode(this.languageSkill);
     this.languageSkillChart = new Chart(languageSkill, {
-      type: 'radar',
+      type: 'polarArea',
       data: {
         labels: languages,
-        datasets: [{
-          data: skill,
-          label: '',
-          fill: true,
-          backgroundColor: GREEN_COLORS[4],
-          borderWidth: 1,
-          borderColor: GREEN_COLORS[0],
-          pointBackgroundColor: GREEN_COLORS[0],
-          pointBorderColor: "#fff",
-          pointHoverBackgroundColor: "#fff",
-          pointHoverBorderColor: GREEN_COLORS[0]
-        }]
+        datasets: [chart.polarArea(skills)]
       },
       options: {
         title: {
           display: true,
-          text: githubTexts.starChartTitle
+          text: githubTexts.starChart.title
         },
         legend: {
           display: false,
         },
-        tooltips: {
-          callbacks: {
-            label: (item, data) => {
-              return `与该语言相关 star 数：${item.yLabel}`
-            }
-          }
-        }
+        // tooltips: {
+        //   callbacks: {
+        //     label: (item, data) => {
+        //       return `${githubTexts.starChart.label}${item.yLabel}`
+        //     }
+        //   }
+        // }
       }
     });
   }
-
-  renderEmptyCard() {
-    return (
-      <div></div>
-    )
-  }
-
-  // get operationItems() {
-  //   const { actions } = this.props;
-  //   return [
-  //     {
-  //       text: '更改仓库',
-  //       icon: 'gears',
-  //       onClick: () => actions.toggleModal(true)
-  //     },
-  //     {
-  //       text: '不在简历中展示',
-  //       onClick: () => {}
-  //     }
-  //   ]
-  // }
 
   renderShowRepos() {
     const { repos } = this.props;
@@ -170,12 +145,18 @@ class LanguageInfo extends React.Component {
               href={repository['html_url']}
               className={githubStyles["repos_info_name"]}>
               {repository.name}
-            </a>{repository.fork ? (<span className={githubStyles["repos_info_forked"]}>
-              <i className="fa fa-code-fork" aria-hidden="true">
-              </i>&nbsp;
-              forked
-            </span>) : ''}<br/>
-            <span>{repository.description}</span>
+            </a>
+            {repository.fork ? (
+              <Label
+                icon="code-fork"
+                text="forked"
+                color="gray"
+                clickable={false}
+              />
+            ) : ''}<br/>
+            <span className={githubStyles["repos_short_desc"]}>
+              {repository.description}
+            </span>
           </div>
           <div className={starClass}>
             <i className={`fa ${stargazersCount > 0 ? 'fa-star' : 'fa-star-o'}`} aria-hidden="true"></i>&nbsp;{stargazersCount}
@@ -185,35 +166,47 @@ class LanguageInfo extends React.Component {
     });
     return (
       <div className={githubStyles["repos_show_container"]}>
-        <p className={githubStyles["repos_show_title"]}>{showLanguage}</p>
+        <p className={githubStyles["repos_show_title"]}>
+          {showLanguage}&nbsp;
+          <span>{githubTexts.relativeRepos}</span>
+        </p>
         {targetRepos}
       </div>
-    )
+    );
   }
 
   renderChartInfo() {
-    const { languageDistributions, languageSkills } = this.props;
+    const { languageDistributions, languageSkills, languageUsed } = this.props;
+
     const reposCount = Object.keys(languageDistributions).map(key => languageDistributions[key]);
     const starCount = Object.keys(languageSkills).map(key => languageSkills[key]);
     const maxReposCountIndex = getMaxIndex(reposCount);
     const maxStarCountIndex = getMaxIndex(starCount);
     const maxUsedLanguage = this.sortedLanguages[0];
+    const total = Object.keys(languageUsed).map(key => languageUsed[key]).reduce((p, c) => p + c, 0);
+
     return (
-      <div className={chartStyles["chart_info_container"]}>
-        <ChartInfo
+      <CardGroup className={cardStyles['card_group']}>
+        <InfoCard
+          tipso={{
+            text: githubTexts.maxReposCountLanguageTip.replace(/\$/, reposCount[maxReposCountIndex])
+          }}
           mainText={Object.keys(languageDistributions)[maxReposCountIndex]}
           subText={githubTexts.maxReposCountLanguage}
         />
-        <ChartInfo
+        <InfoCard
+          tipso={{
+            text: githubTexts.maxUsageLanguageTip.replace(/\$/, (100 * languageUsed[maxUsedLanguage] / total).toFixed(2))
+          }}
           mainText={maxUsedLanguage}
           subText={githubTexts.maxUsageLanguage}
         />
-        <ChartInfo
+        <InfoCard
           mainText={Object.keys(languageSkills)[maxStarCountIndex]}
           subText={githubTexts.maxStarLanguage}
         />
-      </div>
-    )
+      </CardGroup>
+    );
   }
 
   setShowLanguage(language) {
@@ -223,8 +216,10 @@ class LanguageInfo extends React.Component {
   }
 
   get sortedLanguages() {
+    if (this.languages.length) { return this.languages }
     const { languageUsed } = this.props;
-    return Object.keys(languageUsed).sort(sortLanguages(languageUsed)).slice(0, 6);
+    this.languages = Object.keys(languageUsed).sort(sortLanguages(languageUsed)).slice(0, 6);
+    return this.languages;
   }
 
   renderLanguagesLabel() {
@@ -237,17 +232,16 @@ class LanguageInfo extends React.Component {
             backgroundColor: this.labelColor
           }}
           text={language}
-          id={language}
-          onClick={this.setShowLanguage}
+          onClick={() => this.setShowLanguage(language)}
           active={language === showLanguage}
         />
-      )
+    );
     });
     return (
       <div className={githubStyles["language_label_wrapper"]}>
         {languages}
       </div>
-    )
+    );
   }
 
   renderLanguageReview() {
@@ -276,26 +270,28 @@ class LanguageInfo extends React.Component {
         </div>
         {this.renderLanguagesLabel()}
         { showLanguage ? this.renderShowRepos() : ''}
-        {/* <Operations
-          items={this.operationItems}
-        /> */}
       </div>
-    )
+    );
   }
 
   render() {
-    const { loaded } = this.props;
+    const { loaded, className } = this.props;
     return (
-      <div className={cx(cardStyles["info_card_container"], githubStyles["chart_card_container"])}>
-        <p><i aria-hidden="true" className="fa fa-code"></i>&nbsp;&nbsp;{githubTexts.title}</p>
-        <div className={cardStyles["info_card"]}>
-          { !loaded ? (
-            <Loading />
-          ) : this.renderLanguageReview()}
-        </div>
+      <div className={cx(cardStyles["info_card"], className)}>
+        { !loaded ? (
+          <Loading loading={true} />
+        ) : this.renderLanguageReview()}
       </div>
-    )
+    );
   }
 }
+
+LanguageInfo.defaultProps = {
+  className: '',
+  loaded: false,
+  languageSkills: {},
+  languageUsed: {},
+  languageDistributions: {}
+};
 
 export default LanguageInfo;

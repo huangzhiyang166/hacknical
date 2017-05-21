@@ -1,59 +1,50 @@
-import { getData, postData } from './base';
+import { getData, patchData, putData } from './base';
 
 const fetchInfo = (url, data = {}) => getData(`/github${url}`, data);
-const postInfo = (url, data = {}) => postData(`/github${url}`, data);
-
-/* get user repos info */
-const getBaseRepos = () => fetchInfo(`/repos`);
-const getSharedRepos = (login) => fetchInfo(`/${login}/shareInfo`);
-const getRepos = (login) => {
+const patchInfo = (url, data = {}) => patchData(`/github${url}`, data);
+const putInfo = (url, data = {}) => putData(`/github${url}`, data);
+const routerAdapter = (router, login = null) => {
   if (login) {
-    return getSharedRepos(login);
+    return `/${login}/${router}`;
   }
-  return getBaseRepos();
+  return `/${router}`;
 };
 
-const getRepository = (reposName) => fetchInfo(`/${reposName}`);
+/* get repos & orgs info & user info */
+const getAllRepos = () => fetchInfo(`/repos/all`);
+const fetchRepos = () => fetchInfo('/repos/initial');
+const fetchCommits = () => fetchInfo('/commits/initial');
+const fetchOrgs = () => fetchInfo('/orgs/initial');
+const getRepos = (login = null) => fetchInfo(routerAdapter('repos', login));
+const getCommits = (login = null) => fetchInfo(routerAdapter('commits', login));
+const getOrgs = (login = null) => fetchInfo(routerAdapter('orgs', login));
+const getUser = (login = null) => fetchInfo(routerAdapter('user', login));
 
-const getReadme = (reposName) => fetchInfo(`/${reposName}/readme`);
-
-/* get user info */
-const getBaseUser = () => fetchInfo(`/user`);;
-const getShareUser = (login) => fetchInfo(`/${login}/share`);
-const getUser = (login = '') => {
-  if (login) {
-    return getShareUser(login);
-  }
-  return getBaseUser();
-};
-
-const getCommits = () => fetchInfo(`/repos/commits`);
-
-const getShareInfo = (login) => fetchInfo(`/${login}/shareInfo`);
 
 /* toggle user github share */
-const toggleShare = (enable) => postInfo('/user/toggleShare', { enable });
+const toggleShare = (enable) => patchInfo('/share/status', { enable });
 
-/* get github share datas */
-const getShareData = () => fetchInfo(`/shareData`);
+/* get github share records */
+const getShareRecords = () => fetchInfo(`/share/records`);
 
 const getUpdateTime = () => fetchInfo('/updateTime');
 
-const refresh = () => fetchInfo('/refresh');
+const refresh = () => putInfo('/repos/refresh').then((result) => result && putInfo('/commits/refresh')).then((result) => result && putInfo('/orgs/refresh'));
 
 const zen = () => fetchInfo('/zen');
-
 const octocat = () => fetchInfo('/octocat');
 
 export default {
   getUser,
   getRepos,
-  getRepository,
-  getReadme,
+  getAllRepos,
   getCommits,
-  getShareInfo,
+  getOrgs,
+  fetchRepos,
+  fetchCommits,
+  fetchOrgs,
   toggleShare,
-  getShareData,
+  getShareRecords,
   getUpdateTime,
   refresh,
   zen,

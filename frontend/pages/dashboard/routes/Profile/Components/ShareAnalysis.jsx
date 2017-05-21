@@ -5,16 +5,11 @@ import Chart from 'chart.js';
 import Clipboard from 'clipboard';
 import { bindActionCreators } from 'redux';
 import objectAssign from 'object-assign';
+import { Loading, InfoCard, CardGroup, IconButton, Input, Tipso } from 'light-ui';
 
-import Loading from 'COMPONENTS/Loading';
-import IconButton from 'COMPONENTS/IconButton';
-import Input from 'COMPONENTS/Input';
-import ChartInfo from 'COMPONENTS/ChartInfo';
-import Tipso from 'COMPONENTS/Tipso';
 import { sortByX } from 'UTILS/helper';
-
-import { LINECHART_CONFIG } from 'UTILS/const_value';
 import { GREEN_COLORS } from 'UTILS/colors';
+import { RADAR_CONFIG, LINE_CONFIG } from 'SHARED/datas/chart_config';
 import dateHelper from 'UTILS/date';
 import WECHAT from 'SRC/data/wechat';
 import styles from '../styles/profile.css';
@@ -27,22 +22,17 @@ const sortByCount = sortByX('count');
 class ShareAnalysis extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      showQrcodeModal: false
-    };
     this.qrcode = null;
     this.pageViewsChart = null;
     this.viewDevicesChart = null;
     this.viewSourcesChart = null;
     this.copyUrl = this.copyUrl.bind(this);
-    this.onMouseOut = this.onMouseOut.bind(this);
-    this.onMouseOver = this.onMouseOver.bind(this);
   }
 
   componentDidMount() {
     const { actions, index } = this.props;
     actions.fetchShareData();
-    new Clipboard(`#copyLinkButton-${index}`, {
+    this.clipboard = new Clipboard(`#copyLinkButton-${index}`, {
       text: () => $(`#shareGithubUrl-${index}`).val()
     });
   }
@@ -56,12 +46,8 @@ class ShareAnalysis extends React.Component {
     !this.qrcode && this.renderQrcode();
   }
 
-  onMouseOut() {
-    this.setState({ showQrcodeModal: false });
-  }
-
-  onMouseOver() {
-    this.setState({ showQrcodeModal: true });
+  componentWillUnmount() {
+    this.clipboard && this.clipboard.destroy();
   }
 
   copyUrl() {
@@ -70,35 +56,34 @@ class ShareAnalysis extends React.Component {
   }
 
   renderShareController() {
-    const { showQrcodeModal } = this.state;
     const { actions, info, index, text } = this.props;
     const { url } = info;
+
     return (
       <div className={styles["share_controller"]}>
-        <div
-          onMouseEnter={this.onMouseOver}
-          onMouseLeave={this.onMouseOut}
-          onMouseOver={this.onMouseOver}
-          onMouseOut={this.onMouseOut}
-          className={styles["share_container"]}>
-          <Tipso
-            show={showQrcodeModal}>
+        <Tipso
+          position="bottom"
+          wrapperClass={styles["share_container_wrapper"]}
+          tipsoContent={(
             <div className={styles["qrcode_container"]}>
               <div id={`qrcode-${index}`}></div>
               <span>{text}</span>
             </div>
-          </Tipso>
-          <Input
-            id={`shareGithubUrl-${index}`}
-            style="flat"
-            value={`${window.location.origin}/${url}`}
-          />
-          <IconButton
-            icon="clipboard"
-            id={`copyLinkButton-${index}`}
-            onClick={this.copyUrl.bind(this)}
-          />
-        </div>
+          )}>
+          <div className={styles["share_container"]}>
+            <Input
+              theme="flat"
+              id={`shareGithubUrl-${index}`}
+              value={`${window.location.origin}/${url}`}
+            />
+            <IconButton
+              color="gray"
+              icon="clipboard"
+              id={`copyLinkButton-${index}`}
+              onClick={this.copyUrl.bind(this)}
+            />
+          </div>
+        </Tipso>
       </div>
     )
   }
@@ -136,7 +121,7 @@ class ShareAnalysis extends React.Component {
       type: 'line',
       data: {
         labels: dateLabels,
-        datasets: [objectAssign({}, LINECHART_CONFIG, datasetsConfig)]
+        datasets: [objectAssign({}, LINE_CONFIG, datasetsConfig)]
       },
       options: {
         scales: {
@@ -189,33 +174,13 @@ class ShareAnalysis extends React.Component {
     const viewDevicesChart = ReactDOM.findDOMNode(this.viewDevices);
     const labels = viewDevices.map(viewDevice => viewDevice.platform);
     const datas = viewDevices.map(viewDevice => viewDevice.count);
-    this.viewDevicesChart = new Chart(viewDevicesChart, {
-      type: 'radar',
-      data: {
-        labels,
-        datasets: [{
-          data: datas,
-          label: '',
-          fill: true,
-          backgroundColor: GREEN_COLORS[4],
-          borderWidth: 1,
-          borderColor: GREEN_COLORS[0],
-          pointBackgroundColor: GREEN_COLORS[0],
-          pointBorderColor: "#fff",
-          pointHoverBackgroundColor: "#fff",
-          pointHoverBorderColor: GREEN_COLORS[0]
-        }]
-      },
-      options: {
-        title: {
-          display: true,
-          text: profileTexts.platformChartTitle
-        },
-        legend: {
-          display: false,
-        }
-      }
-    });
+
+    const radarConfig = objectAssign({}, RADAR_CONFIG);
+    radarConfig.data.labels = labels;
+    radarConfig.data.datasets[0].data = datas;
+    radarConfig.options.title.text = profileTexts.platformChartTitle;
+
+    this.viewDevicesChart = new Chart(viewDevicesChart, radarConfig);
   }
 
   renderSourcesChart() {
@@ -224,33 +189,12 @@ class ShareAnalysis extends React.Component {
     const labels = viewSources.map(viewSource => viewSource.browser);
     const datas = viewSources.map(viewSource => viewSource.count);
 
-    this.viewSourcesChart = new Chart(viewSourcesChart, {
-      type: 'radar',
-      data: {
-        labels,
-        datasets: [{
-          data: datas,
-          label: '',
-          fill: true,
-          backgroundColor: GREEN_COLORS[4],
-          borderWidth: 1,
-          borderColor: GREEN_COLORS[0],
-          pointBackgroundColor: GREEN_COLORS[0],
-          pointBorderColor: "#fff",
-          pointHoverBackgroundColor: "#fff",
-          pointHoverBorderColor: GREEN_COLORS[0]
-        }]
-      },
-      options: {
-        title: {
-          display: true,
-          text: profileTexts.browserChartTitle
-        },
-        legend: {
-          display: false,
-        }
-      }
-    });
+    const radarConfig = objectAssign({}, RADAR_CONFIG);
+    radarConfig.data.labels = labels;
+    radarConfig.data.datasets[0].data = datas;
+    radarConfig.options.title.text = profileTexts.browserChartTitle;
+
+    this.viewSourcesChart = new Chart(viewSourcesChart, radarConfig);
   }
 
   renderChartInfo() {
@@ -272,20 +216,20 @@ class ShareAnalysis extends React.Component {
       .map(viewSource => viewSource.browser);
 
     return (
-      <div className={styles["chart_info_container"]}>
-        <ChartInfo
+      <CardGroup className={styles['card_group']}>
+        <InfoCard
           mainText={viewCount}
           subText={profileTexts.pv}
         />
-        <ChartInfo
+        <InfoCard
           mainText={platforms.slice(0, 2).join(',')}
           subText={profileTexts.platform}
         />
-        <ChartInfo
+        <InfoCard
           mainText={browsers.join(',')}
           subText={profileTexts.browser}
         />
-      </div>
+      </CardGroup>
     )
   }
 
@@ -294,7 +238,6 @@ class ShareAnalysis extends React.Component {
       viewDevices,
       viewSources
     } = this.props;
-
     const datas = {
       viewDevices: viewDevices.sort(sortByCount).slice(0, 6),
       viewSources: viewSources.sort(sortByCount).slice(0, 6),
@@ -316,7 +259,7 @@ class ShareAnalysis extends React.Component {
             {this.renderShareController()}
           </div>
         )}
-        {loading ? (<Loading />) : (
+        {loading ? (<Loading loading={true} />) : (
           <div className={styles["card"]}>
             {this.renderChartInfo()}
             <div className={styles["chart_container"]}>

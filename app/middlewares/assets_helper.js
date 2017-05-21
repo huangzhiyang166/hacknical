@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import config from 'config';
 
-import PATH from '../../config/webpack/path';
+import PATH from '../../config/path';
 import CDN from './cdn';
 
 let manifest = {};
@@ -18,7 +18,7 @@ function getAssetName(asset) {
 const assetsPath = (assetsName) => {
   const publicAsset = getAssetName(assetsName);
   if (!publicAsset) {
-    return `${CDN.URL}/dll/${assetsName}`;
+    return `${CDN.URL}/${assetsName}`;
   }
   return publicAsset;
 };

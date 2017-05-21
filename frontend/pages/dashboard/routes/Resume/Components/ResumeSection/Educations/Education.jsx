@@ -1,11 +1,13 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import { Input, SelectorV2 } from 'light-ui';
 
 import DateSlider from 'COMPONENTS/DateSlider'
-import Input from 'COMPONENTS/Input';
-import SelectorV2 from 'COMPONENTS/SelectorV2';
 import dateHelper from 'UTILS/date';
-import { EDUCATIONS } from 'SHAREDPAGE/datas/resume';
+import { EDUCATIONS } from 'SHARED/datas/resume';
 import styles from '../../../styles/resume.css';
+import locales from 'LOCALES';
+
+const resumeTexts = locales("resume").sections.edu;
 
 class Education extends React.Component {
   constructor(props) {
@@ -54,17 +56,17 @@ class Education extends React.Component {
           </div>
           <Input
             value={school}
-            style="flat"
-            placeholder="学校名称"
-            customStyle={styles["single_input"]}
+            theme="flat"
+            placeholder={resumeTexts.school}
+            className={styles["single_input"]}
             onChange={handleEduChange('school')}
           />
         </div>
         <div className={styles["resume_wrapper"]}>
           <Input
             value={major}
-            style="flat"
-            placeholder="院系 & 专业"
+            theme="flat"
+            placeholder={resumeTexts.major}
             onChange={handleEduChange('major')}
           />
           <SelectorV2
@@ -78,8 +80,8 @@ class Education extends React.Component {
           <DateSlider
             initialStart={startTime}
             initialEnd={endTime}
-            startText="入学时间"
-            endText="毕业时间"
+            startText={resumeTexts.entranceAt}
+            endText={resumeTexts.graduateAt}
             maxDate={dateHelper.date.afterYears(5)}
             pushInterval="year"
             onStartChange={handleEduChange('startTime')}

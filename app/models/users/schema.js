@@ -13,24 +13,26 @@ const UserSchema = new Schema({
   email: String,
   openShare: { type: Boolean, default: true },
   githubId: { type: String, default: '' },
+  githubLogin: { type: String, default: '' },
   githubInfo: {
-    name: String,
+    login: { type: String, default: '' }
+  },
+  orgs: [{
     login: String,
     avatar_url: String,
-    company: String,
-    blog: String,
-    location: String,
-    email: String,
-    bio: String,
-    created_at: String,
-    updated_at: String,
-    public_repos: String,
-    public_gists: String,
-    followers: String,
-    following: String,
-    html_url: String,
-    lastUpdateTime: Date
-  }
+    description: String
+  }],
+  pinnedRepos: { type: Array, default: [] },
+  githubSections: {
+    hotmap: { type: Boolean, default: true },
+    info: { type: Boolean, default: true },
+    repos: { type: Boolean, default: true },
+    languages: { type: Boolean, default: true },
+    commits: { type: Boolean, default: true },
+    orgs: { type: Boolean, default: true },
+    course: { type: Boolean, default: true }
+  },
+  initialed: { type: Boolean, default: false }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });

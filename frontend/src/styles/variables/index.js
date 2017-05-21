@@ -7,6 +7,7 @@ module.exports = {
   shadow5: '2px 2px 8px 0 rgba(0, 0, 0, 0.2)',
   shadow6: '2px 2px 8px 0 rgba(0, 0, 0, 0.3)',
   shadow7: '2px 2px 8px 0 rgba(0, 0, 0, 0.5)',
+  topShadow: '1px 2px 4px 0 rgba(0, 0, 0, 0.1)',
 
   shadowCard: '0 8px 10px 0 rgba(0, 0, 0, 0.12), 0 0 10px 0 rgba(0, 0, 0, 0.08)',
 
@@ -26,5 +27,6 @@ module.exports = {
   zIndex1: '1',
   zIndex9: '9',
   zIndex99: '99',
-  zIndex999: '999'
+  zIndex999: '999',
+  zIndex9999: '9999'
 };

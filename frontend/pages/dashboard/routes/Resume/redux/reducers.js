@@ -8,11 +8,11 @@ import {
   WORK_PROJECT,
   PERSONAL_PROJECT,
   SOCIAL_LINKS
-} from 'SHAREDPAGE/datas/resume';
+} from 'SHARED/datas/resume';
 import {
   objectassign,
   validateSocialLinks
-} from 'SHAREDPAGE/utils/resume';
+} from 'SHARED/utils/resume';
 import dateHelper from 'UTILS/date';
 
 const getDateBeforeYears = dateHelper.date.beforeYears;
@@ -29,8 +29,10 @@ const initialState = {
     url: '',
     github: {},
     openShare: false,
-    useGithub: false
-  }
+    useGithub: false,
+    resumeHash: ''
+  },
+  downloadDisabled: false
 };
 
 
@@ -407,7 +409,16 @@ const reducers = handleActions({
       ...state,
       shareInfo: objectassign(shareInfo, { openShare })
     });
-  }
+  },
+
+  // resume download
+  TOGGLE_DOWNLOAD_BUTTON(state, action) {
+    return ({
+      ...state,
+      downloadDisabled: action.payload
+    });
+  },
+
 }, initialState);
 
 export default reducers;

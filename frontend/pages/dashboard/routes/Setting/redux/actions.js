@@ -3,11 +3,13 @@ import objectAssign from 'object-assign';
 import Api from 'API/index';
 
 const {
+  toggleGithubModal,
   toggleSettingLoading,
   setUpdateTime,
   initialResumeShareInfo,
   initialGithubShareInfo
 } = createActions(
+  'TOGGLE_GITHUB_MODAL',
   'TOGGLE_SETTING_LOADING',
   'SET_UPDATE_TIME',
   'INITIAL_RESUME_SHARE_INFO',
@@ -23,14 +25,12 @@ const fetchGithubUpdateTime = () => (dispatch, getState) => {
 
 const refreshGithubDatas = () => (dispatch, getState) => {
   dispatch(toggleSettingLoading(true));
-  Api.github.refresh().then((result) => {
-    dispatch(setUpdateTime(result));
-  });
+  Api.github.refresh().then((result) => dispatch(setUpdateTime(result)));
 };
 
 // github share
 const fetchGithubShareInfo = () => (dispatch, getState) => {
-  Api.github.getShareData().then((result) => {
+  Api.github.getShareRecords().then((result) => {
     dispatch(initialGithubShareInfo(result));
   });
 };
@@ -83,6 +83,7 @@ const postResumeShareSection = (section, checked) => (dispatch, getState) => {
 
 export default {
   // github
+  toggleGithubModal,
   toggleSettingLoading,
   setUpdateTime,
   fetchGithubUpdateTime,

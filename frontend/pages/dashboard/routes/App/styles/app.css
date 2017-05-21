@@ -31,12 +31,52 @@
   height: 50px;
 }
 
+/* tabbar */
+.tab_container {
+  flex: 1;
+  color: var(--oc-gray-6);
+  border-bottom: 3px solid transparent;
+  transition: border-bottom 0.2s, color 0.2s;
+
+  & i {
+    color: var(--oc-gray-6);
+  }
+
+  &.enable:hover,
+  &.active {
+    color: var(--oc-green-7);
+    border-bottom: 3px solid var(--oc-green-7);
+
+    & .app_tab {
+      color: var(--oc-green-7);
+    }
+
+    & i {
+      color: var(--oc-green-7);
+    }
+  }
+}
+
+.app_tab {
+  width: 100%;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+  color: var(--oc-gray-6);
+  position: relative;
+}
+
+.tab_tipso.tab_tipso {
+  display: inline-block;
+  line-height: 16px;
+  width: 120px;
+  color: var(--oc-gray-6);
+}
+
 /* content */
 .content_container {
-  width: 80%;
-  margin: 30px auto;
-  max-width: 750px;
-  min-width: 675px;
+  width: 100%;
+  margin: 30px 0;
 }
 
 /* header */
@@ -49,7 +89,7 @@
 
 .zen {
   line-height: 22px;
-  margin: 0 20px;
+  margin: 0 10px;
   font-size: 12px;
   position: relative;
 }
@@ -71,54 +111,50 @@
 .header_menu_icon_right {
   composes: header_menu_icon;
   position: relative;
+  margin: 0 10px;
+}
+
+.dropdown_wrapper {
+  height: 1.8em;
+  line-height: 1.8em;
+  overflow: hidden;
+  min-width: 40px;
+  text-align: center;
+  z-index: var(--zIndex999);
+
+  &:hover {
+    overflow: visible;
+  }
 
   &:not(:last-child) {
-    margin-right: 20px;
+    margin-right: 10px;
   }
 }
 
-.header_menu_text_right {
-  composes: header_menu_icon;
-  position: relative;
+.dropdown_item {
+  cursor: pointer;
+  display: block;
+  color: var(--oc-gray-7);
+  text-decoration: none;
   font-size: 12px;
+  height: 100%;
+  background-color: var(--oc-white);
+  box-shadow: var(--shadow2);
+  transition: background-color 0.3s;
 
-  &:not(:last-child) {
-    margin-right: 20px;
-  }
-}
-
-/* tipso */
-.tipso {
-  top: 130%;
-  bottom: inherit !important;
-
-  &::before {
-    top: -11px;
-    border-top: none !important;
-    border-bottom: 10px solid rgba(212, 212, 212, 0.3);
-  }
-
-  &::after {
-    top: -9px;
-    border-top: none !important;
-    border-bottom: 10px solid var(--oc-white);
+  &:hover {
+    background-color: var(--oc-gray-1);
   }
 }
 
 .menu_tipso {
-  composes: tipso;
-  font-size: 12px;
-  color: var(--oc-white);
   min-width: 50px !important;
-  background-color: var(--bgDark) !important;
+  transform: translate(-50%, 15px);
   z-index: var(--zIndex999) !important;
-
-  &::after {
-    border-bottom: 10px solid var(--bgDark);
-  }
 }
 
 .zen_tipso {
-  composes: menu_tipso;
+  transform: translate(-50%, 0px);
+  z-index: var(--zIndex999) !important;
   min-width: 90px !important;
 }

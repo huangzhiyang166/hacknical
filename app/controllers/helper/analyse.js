@@ -1,7 +1,26 @@
+import config from 'config';
 import ShareAnalyse from '../../models/share-analyse';
+import Slack from '../../services/slack';
 
-const collect = async (ctx, next) => {
+const URL = config.get('url');
+
+const updateViewData = async (ctx, options) => {
   const { from } = ctx.query;
+  const { platform, browser } = ctx.state;
+  const updateResult = await ShareAnalyse.updateShare(options);
+  if (!updateResult.success) {
+    ctx.redirect('/404');
+    return;
+  }
+  await ShareAnalyse.updateViewData({
+    platform,
+    url: options.url,
+    browser: browser || '',
+    from: from || ''
+  });
+};
+
+const collectGithubRecord = async (ctx, next) => {
   const { login } = ctx.params;
   const { githubLogin } = ctx.session;
 
@@ -10,44 +29,32 @@ const collect = async (ctx, next) => {
     await next();
     return;
   }
-
-  const { platform, browser } = ctx.state;
   const url = `github/${login}`;
-  const updateResult = await ShareAnalyse.updateShare({ login, url });
-  if (!updateResult.success) {
-    ctx.redirect('/404');
-    return;
-  }
-  await ShareAnalyse.updateViewData({
-    url,
-    platform,
-    browser: browser || '',
-    from: from || ''
+  Slack.msg({
+    type: 'view',
+    data: `GitHub view of /${url}`
   });
+  updateViewData(ctx, { login, url });
   await next();
 };
 
-const collectResumeData = async (ctx, next) => {
-  const { from } = ctx.query;
+const collectResumeRecord = async (ctx, next) => {
+  const { notrace } = ctx.query;
   const { hash } = ctx.params;
 
-  const { platform, browser } = ctx.state;
-  const url = `resume/${hash}`;
-  const updateResult = await ShareAnalyse.updateShare({ url });
-  if (!updateResult.success) {
-    ctx.redirect('/404');
-    return;
+  if (!notrace || notrace === 'false') {
+    const url = `resume/${hash}`;
+    updateViewData(ctx, { url });
+    Slack.msg({
+      type: 'view',
+      data: `Resume view of /${url}`
+    });
   }
-  await ShareAnalyse.updateViewData({
-    url,
-    platform,
-    browser: browser || '',
-    from: from || ''
-  });
+
   await next();
 };
 
 export default {
-  collect,
-  collectResumeData
-}
+  github: collectGithubRecord,
+  resume: collectResumeRecord
+};

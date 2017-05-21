@@ -1,13 +1,15 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import { InputGroup, Input } from 'light-ui';
 
 import DateSlider from 'COMPONENTS/DateSlider';
-import Input from 'COMPONENTS/Input';
-import InputsGroup from 'COMPONENTS/InputsGroup';
-import { EDUCATIONS } from 'SHAREDPAGE/datas/resume';
+import { EDUCATIONS } from 'SHARED/datas/resume';
 import WorkProject from './WorkProject';
+import { TipsoInput } from '../components';
 import styles from '../../../styles/resume.css';
 import dateHelper from 'UTILS/date';
+import locales from 'LOCALES';
 
+const resumeTexts = locales("resume").sections.work;
 const getSecondsByDate = dateHelper.seconds.getByDate;
 const getDateNow = dateHelper.date.now;
 const DATE_NOW = getDateNow();
@@ -72,38 +74,31 @@ class WorkExperience extends React.Component {
       projects
     } = workExperience;
 
-    const endText = getSecondsByDate(endTime) >= getSecondsByDate(DATE_NOW) ? '至今在职' : '离职时间';
+    const endText = getSecondsByDate(endTime) >= getSecondsByDate(DATE_NOW) ? resumeTexts.untilNow : resumeTexts.dimissionAt;
 
     return (
       <div className={styles["resume_piece_container"]}>
         <div className={styles["section_second_title"]}>
-          公司信息
+          {resumeTexts.companyInfo}
         </div>
         <div className={styles["resume_wrapper"]}>
-          <InputsGroup
+          <InputGroup
             value={company}
-            style="flat"
-            placeholder="公司名称"
+            theme="flat"
+            placeholder={resumeTexts.companyName}
             onChange={handleExperienceChange('company')}>
-            <div className={styles["project_link_wrapper"]}>
-              <i className="fa fa-link" aria-hidden="true"></i>
-              &nbsp;&nbsp;
-              <Input
-                value={url}
-                type="url"
-                check={false}
-                style="borderless"
-                className="underline"
-                placeholder="填写公司主页"
-                onChange={handleExperienceChange('url')}
-              />
-            </div>
-          </InputsGroup>
+            <TipsoInput
+              value={url}
+              placeholder={resumeTexts.homepage}
+              onChange={handleExperienceChange('url')}
+              className={styles['tipso_input_long']}
+            />
+          </InputGroup>
           <Input
             value={position}
-            style="flat"
-            placeholder="所处职位"
-            customStyle={styles["last_input"]}
+            theme="flat"
+            placeholder={resumeTexts.position}
+            className={styles["last_input"]}
             onChange={handleExperienceChange('position')}
           />
           <div className={styles["resume_delete"]} onClick={deleteExperience}>
@@ -114,7 +109,7 @@ class WorkExperience extends React.Component {
           <DateSlider
             initialStart={startTime}
             initialEnd={endTime}
-            startText="入职时间"
+            startText={resumeTexts.entriedAt}
             endText={endText}
             onStartChange={handleExperienceChange('startTime')}
             onEndChange={handleExperienceChange('endTime')}
@@ -122,7 +117,7 @@ class WorkExperience extends React.Component {
         </div>
         <div className={styles["project_wrapper"]}>
           <div className={styles["section_second_title"]}>
-            参与项目
+            {resumeTexts.joinedProjects}
           </div>
           {this.renderWorkProjects(projects)}
           <div
@@ -130,7 +125,7 @@ class WorkExperience extends React.Component {
             onClick={addProject}>
             <i className="fa fa-plus-circle" aria-hidden="true"></i>
             &nbsp;&nbsp;&nbsp;
-            添加参与的项目
+            {resumeTexts.sideButton}
           </div>
         </div>
       </div>

@@ -2,13 +2,16 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
+import { Input } from 'light-ui';
 
 import actions from '../../redux/actions';
 import WritableList from 'COMPONENTS/WritableList';
-import Input from 'COMPONENTS/Input';
 import FormatInput from 'COMPONENTS/FormatInput';
 import SocialLink from './SocialLink';
 import styles from '../../styles/resume.css';
+import locales from 'LOCALES';
+
+const resumeTexts = locales("resume").sections.others;
 
 class Others extends React.Component {
   constructor(props) {
@@ -71,43 +74,44 @@ class Others extends React.Component {
       <div>
         <div className={styles["resume_piece_container"]}>
           <div className={styles["resume_title"]}>
-            其他补充
+            {resumeTexts.title}
           </div>
           <div className={styles["resume_wrapper"]}>
             <FormatInput
               value={expectSalary}
-              placeholder="期望月薪"
+              placeholder={resumeTexts.expectSalary}
               formatType="number"
-              style="flat"
+              theme="flat"
               id="input-expect-salary"
               onChange={this.handleOthersChange('expectSalary')}
             />
             <Input
               value={expectLocation}
-              placeholder="期望城市"
-              style="flat"
+              placeholder={resumeTexts.expectCity}
+              theme="flat"
               onChange={this.handleOthersChange('expectLocation')}
             />
           </div>
           <div className={styles["resume_wrapper"]}>
             <Input
               value={dream}
-              placeholder="你的梦想？"
-              style="flat"
+              placeholder={resumeTexts.yourDream}
+              theme="flat"
               onChange={this.handleOthersChange('dream')}
             />
           </div>
           <WritableList
             items={supplements}
+            introText={resumeTexts.introText}
             onAdd={this.addSupplement}
             onDelete={this.deleteSupplement}
             onChange={this.changeSupplement}
-            placeholder="个人介绍"
+            placeholder={resumeTexts.personalIntro}
           />
         </div>
         <div className={styles["resume_piece_container"]}>
           <div className={styles["resume_title"]}>
-            其他链接
+            {resumeTexts.links.title}
           </div>
           <div className={styles["resume_wrapper"]}>
             {this.renderSocialLinks()}

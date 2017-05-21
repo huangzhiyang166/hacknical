@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block body %}
-  <div id="root">
+  <div id="loading">
     <div class="loading_container">
       <div class="ball-clip-rotate-multiple">
         <div></div>
@@ -13,9 +13,11 @@
       </div>
     </div>
   </div>
+  <div id="root"></div>
+  {% include "layouts/footer.html" %}
 {% endblock %}
 
 {% block js %}
-  <script src="{{ vendorPath("qrcode.min.js") }}"></script>
+  <script src="{{ assetsPath("vendor/qrcode.min.js") }}"></script>
   <script src="{{ assetsPath("dashboard.js") }}"></script>
 {% endblock %}

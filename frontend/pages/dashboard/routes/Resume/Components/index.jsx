@@ -2,12 +2,12 @@ import React from 'react';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button, IconButton, Tipso } from 'light-ui';
+import { Message } from 'light-ui/lib/raw';
 
-import Button from 'COMPONENTS/Button';
-import IconButton from 'COMPONENTS/IconButton';
 import styles from '../styles/resume.css';
-import { RESUME_SECTIONS } from 'SHAREDPAGE/datas/resume';
-import ShareModal from 'SHAREDPAGE/components/ShareModal';
+import { RESUME_SECTIONS } from 'SHARED/datas/resume';
+import ShareModal from 'SHARED/components/ShareModal';
 import ResumeSection from './ResumeSection';
 import ResumeModalV2 from './ResumeModal/v2';
 import IntroModal from './IntroModal';
@@ -15,8 +15,8 @@ import actions from '../redux/actions';
 import Hotkeys from 'UTILS/hotkeys';
 import locales from 'LOCALES';
 
+const message = new Message();
 const resumeTexts = locales("resume");
-
 const INTROS = [
   {
     title: '使用说明',
@@ -45,6 +45,7 @@ class Resume extends React.Component {
       openShareModal: false,
       activeSection: RESUME_SECTIONS[0].id
     };
+    this.downloadResume = this.downloadResume.bind(this);
     this.handleModalStatus = this.handleModalStatus.bind(this);
     this.handleShareModalStatus = this.handleShareModalStatus.bind(this);
     this.handleIntroModalStatus = this.handleIntroModalStatus.bind(this);
@@ -76,6 +77,12 @@ class Resume extends React.Component {
     this.props.actions.fetchResume();
     this.props.actions.fetchPubResumeStatus();
     this.bindHotkeys();
+  }
+
+  downloadResume() {
+    message.notice(resumeTexts.messages.download);
+    const { actions } = this.props;
+    actions.downloadResume();
   }
 
   bindHotkeys() {
@@ -145,7 +152,7 @@ class Resume extends React.Component {
   render() {
     const { activeSection, openModal, openIntroModal, openShareModal } = this.state;
     const { resume, actions } = this.props;
-    const { shareInfo } = resume;
+    const { shareInfo, downloadDisabled } = resume;
     const { url, openShare } = shareInfo;
 
     const origin = window.location.origin;
@@ -160,11 +167,25 @@ class Resume extends React.Component {
         <div className={styles["resume_operations"]}>
           <div className={styles["operations_wrapper"]}>
             <IconButton
+              color="gray"
               icon="question"
               className={styles["icon_button"]}
               onClick={() => this.handleIntroModalStatus(true)}
             />
+            <Tipso
+              trigger="hover"
+              className={styles["icon_button_tipso"]}
+              tipsoContent={(<span>{resumeTexts.messages.downloadTip}</span>)}>
+              <IconButton
+                color="gray"
+                icon="download"
+                className={styles["icon_button"]}
+                onClick={this.downloadResume}
+                disabled={downloadDisabled}
+              />
+            </Tipso>
             <IconButton
+              color="gray"
               icon="share-alt"
               className={styles["icon_button"]}
               onClick={() => this.handleShareModalStatus(true)}
@@ -222,6 +243,7 @@ class Resume extends React.Component {
           openModal={openModal}
           onShare={() => this.handleShareModalStatus(true)}
           onClose={() => this.handleModalStatus(false)}
+          onDownload={this.downloadResume}
         />
         <IntroModal
           openModal={openIntroModal}

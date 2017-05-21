@@ -10,27 +10,45 @@
 
 {% block body %}
   {% if user.isAdmin %}
-    <div class="mobile_menu_icon">
-      <i class="fa fa-navicon" aria-hidden="true"></i>
+    <div class="mobile_topbar">
+      <div class="mobile_menu_icon">
+        <i class="fa fa-navicon" aria-hidden="true"></i>
+      </div>
+      <div class="mobile_logo">
+        hacknical
+      </div>
     </div>
     <div class="mobile_menu_wrapper">
       <div class="mobile_menu">
-        <a href="/user/analysis" class="menu">
-          <i class="fa fa-user-circle" aria-hidden="true"></i>
-          {{ menu.shareDatas }}
-        </a>
-        <a href="/user/dashboard" class="menu">
-          <i class="fa fa-github" aria-hidden="true"></i>
-          {{ menu.githubAnalysis }}
-        </a>
-        <a href="/user/setting" class="menu">
-          <i class="fa fa-cog" aria-hidden="true"></i>
-          {{ menu.dataRefresh }}
-        </a>
-        <a href="/user/logout" class="menu">
-          <i class="fa fa-sign-out" aria-hidden="true"></i>
-          {{ menu.logout }}
-        </a>
+        <div class="menu_top">
+          <a href="/user/analysis/mobile" class="menu">
+            <i class="fa fa-user-circle" aria-hidden="true"></i>
+            &nbsp;&nbsp;
+            {{ menu.shareDatas }}
+          </a>
+          <a href="/dashboard" class="menu">
+            <i class="fa fa-github" aria-hidden="true"></i>
+            &nbsp;&nbsp;
+            {{ menu.githubShare }}
+          </a>
+          <a href="/resume/sharePage" class="menu">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i>
+            &nbsp;&nbsp;
+            {{ menu.resumeShare }}
+          </a>
+          <a href="/user/setting/mobile" class="menu">
+            <i class="fa fa-cog" aria-hidden="true"></i>
+            &nbsp;&nbsp;
+            {{ menu.dataRefresh }}
+          </a>
+        </div>
+        <div class="menu_bottom">
+          <a href="/user/logout" class="menu menu_logout">
+            <i class="fa fa-sign-out" aria-hidden="true"></i>
+            &nbsp;&nbsp;
+            {{ menu.logout }}
+          </a>
+        </div>
       </div>
     </div>
   {% endif %}

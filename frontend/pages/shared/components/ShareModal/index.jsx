@@ -2,10 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import Clipboard from 'clipboard';
-
-import PortalModal from 'COMPONENTS/PortalModal';
-import IconButton from 'COMPONENTS/IconButton';
-import Input from 'COMPONENTS/Input';
+import { IconButton, Input, PortalModal } from 'light-ui';
 import locales from 'LOCALES';
 
 import { GREEN_COLORS, MD_COLORS } from 'UTILS/colors';
@@ -17,9 +14,21 @@ const DARK_COLORS = MD_COLORS.slice(-2);
 class ShareModal extends React.Component {
   componentDidMount() {
     this.renderQrcode();
-    new Clipboard('#copyButton', {
+    this.clipboard = new Clipboard('#copyButton', {
       text: () => $("#shareUrl").val()
     });
+  }
+
+  componentDidUpdate(preProps) {
+    const { options } = this.props;
+    const preOptions = preProps.options;
+    if ((!options.openShare && preOptions.openShare) || (options.openShare && !preOptions.openShare)) {
+      this.renderQrcode();
+    }
+  }
+
+  componentWillUnmount() {
+    this.clipboard && this.clipboard.destroy();
   }
 
   renderQrcode() {
@@ -34,14 +43,6 @@ class ShareModal extends React.Component {
       colorLight : "#ffffff",
       correctLevel : QRCode.CorrectLevel.H
     });
-  }
-
-  componentDidUpdate(preProps) {
-    const { options } = this.props;
-    const preOptions = preProps.options;
-    if ((!options.openShare && preOptions.openShare) || (options.openShare && !preOptions.openShare)) {
-      this.renderQrcode();
-    }
   }
 
   copyUrl() {
@@ -77,10 +78,11 @@ class ShareModal extends React.Component {
             <div className={styles["share_container"]}>
               <Input
                 id="shareUrl"
-                style="flat"
+                theme="flat"
                 value={link}
               />
               <IconButton
+                color="gray"
                 icon="clipboard"
                 id="copyButton"
                 onClick={this.copyUrl.bind(this)}

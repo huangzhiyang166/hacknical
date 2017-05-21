@@ -1,44 +1,49 @@
-import { postData, getData } from './base';
+import { postData, getData, putData, patchData } from './base';
 
 const getResume = () => {
   return getData('/resume/edit');
 };
 
 const setResume = (resume) => {
-  return postData('/resume/edit', { resume })
+  return putData('/resume/edit', { resume })
 };
 
-const getPubResume = (hash) => {
-  return getData(`/resume/${hash}/pub`);
-};
+const download = (hash = window.resumeHash) => getData('/resume/download', { hash });
 
-const getPubResumeStatus = () => {
-  return getData(`/resume/status`);
+const getPubResume = (hash) => getData(`/resume/pub`, { hash });
+
+const getPubResumeStatus = (hash) => {
+  if (hash) {
+    return getData(`/resume/${hash}/share`);
+  } else {
+    return getData(`/resume/share`);
+  }
 };
 
 const postPubResumeShareStatus = (enable) => {
-  return postData(`/resume/shareStatus`, { enable });
+  return patchData(`/resume/share/status`, { enable });
 };
 
 const postPubResumeGithubStatus = (enable) => {
-  return postData(`/resume/githubStatus`, { enable });
+  return patchData(`/resume/share/github`, { enable });
 };
 
 const postPubResumeGithubSection = (option) => {
-  return postData(`/resume/githubSection`, option);
+  return patchData(`/resume/github/section`, option);
 };
 
-const getShareData = () => {
-  return getData('/resume/shareData');
+const getShareRecords = () => {
+  return getData('/resume/share/records');
 };
 
 export default {
   getResume,
   setResume,
+  download,
   getPubResume,
   getPubResumeStatus,
   postPubResumeShareStatus,
   postPubResumeGithubStatus,
   postPubResumeGithubSection,
-  getShareData
+  getShareRecords
 }

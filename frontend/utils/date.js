@@ -1,5 +1,8 @@
 import moment from 'moment';
-moment.locale(window.locale);
+import { formatLocale } from 'LOCALES';
+
+const locale = formatLocale();
+moment.locale(locale);
 
 const formatDate = (format) => (date) => moment(date).format(format);
 const getSeconds = (date) => parseInt(formatDate('X')(date));
@@ -32,7 +35,8 @@ export default {
     beforeYears: getDateBeforeYears('YYYY-MM-DD'),
     afterYears: getDateAfterYears('YYYY-MM-DD'),
     afterDays: (after, date = null) => moment(date).add(parseInt(after), 'days').format('YYYY-MM-DD'),
-    bySeconds: (seconds) => moment.unix(seconds).format('YYYY-MM-DD')
+    bySeconds: (seconds, format = 'YYYY-MM-DD') => moment.unix(seconds).format(format),
+    getMonth: (date) => formatDate('M')(date)
   },
   relative: {
     hoursBefore: (date) => moment(date).startOf('hour').fromNow(),
